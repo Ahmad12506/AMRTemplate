@@ -4,27 +4,14 @@
     "parameters": {
         "factoryName": {
             "type": "string",
-            "defaultValue": "",
+            "defaultValue": "nydatafactory",
             "metadata": {
                 "description": "Enter the worldwide unique name for Data Factory"
                 }
         },
-        "GitHub_userName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Enter the Git-Hub Account User Name"
-                }
-        },
-        "GitHub_password": {
-            "type": "secureString",
-            "metadata": {
-                "description": "Enter the Git-Hub Account Password"
-                }
-        },
         "storageAccountName": {
             "type": "string",
-            "defaultValue": "",
+            "defaultValue": "storageacc",
             "metadata": {
             "description": "Enter the unique Name of the Azure storage account that contains the input/output data."
             }
@@ -37,7 +24,7 @@
             }
         },
         "Action_Group_Name": {
-            "defaultValue": "",
+            "defaultValue": "actiongroup",
             "type": "String",
             "metadata": {
                 "description": "Enter Action group name"
@@ -51,7 +38,7 @@
                 }
         },
         "Teams_connections_name": {
-            "defaultValue": "",
+            "defaultValue": "teams-1",
             "type": "String",
             "metadata": {
                 "description": "Enter Teams Connection Name e.g teams-1"
@@ -65,7 +52,7 @@
                 }
         },
         "Logic_App_Name": {
-            "defaultValue": "",
+            "defaultValue": "newlogicapp",
             "type": "String",
             "metadata": {
                 "description": "Enter Logic App name"
@@ -170,7 +157,7 @@
                                         "type": "Expression"
                                     },
                                     "file": {
-                                        "value": "@concat(pipeline().parameters.rawBlobDirectory,'/',formatdatetime(utcnow(),'yyyy/MM/dd'))",
+                                        "value": "@concat(pipeline().parameters.sourceFilename,'_',pipeline().RunId,'.csv')",
                                         "type": "Expression"
                                     },
                                     "container": {
@@ -254,7 +241,7 @@
                         ]
                     },
                     {
-                        "name": "dataflow1",
+                        "name": "CovidTracking_Dataset",
                         "type": "ExecuteDataFlow",
                         "dependsOn": [
                             {
@@ -280,11 +267,14 @@
                         "userProperties": [],
                         "typeProperties": {
                             "dataflow": {
-                                "referenceName": "dataflow1",
+                                "referenceName": "CovidTracking_Dataset",
                                 "type": "DataFlowReference",
                                 "parameters": {
                                     "filename": "'covid_tracking'",
-                                    "runid": "'runtime_guid'"
+                                    "runid": {
+                                        "value": "'@{pipeline().RunId}'",
+                                        "type": "Expression"
+                                    }
                                 },
                                 "datasetParameters": {
                                     "sourceCSV": {
@@ -388,7 +378,7 @@
                         "type": "Copy",
                         "dependsOn": [
                             {
-                                "activity": "dataflow1",
+                                "activity": "CovidTracking_Dataset",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -471,7 +461,7 @@
                         "type": "Copy",
                         "dependsOn": [
                             {
-                                "activity": "dataflow1",
+                                "activity": "CovidTracking_Dataset",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -582,7 +572,7 @@
                 "[parameters('factoryName')]",
                 "[concat(variables('factoryId'), '/datasets/Github_dataset')]",
                 "[concat(variables('factoryId'), '/datasets/csv_dataset1')]",
-                "[concat(variables('factoryId'), '/dataflows/dataflow1')]",
+                "[concat(variables('factoryId'), '/dataflows/CovidTracking_Dataset')]",
                 "[concat(variables('factoryId'), '/datasets/json_dataset1')]"
             ]
         },
@@ -824,12 +814,7 @@
                 "typeProperties": {
                     "url": "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv",
                     "enableServerCertificateValidation": true,
-                    "authenticationType": "Basic",
-                    "userName": "[parameters('GitHub_userName')]",
-                    "password": {
-                        "type": "SecureString",
-                        "value": "[parameters('GitHub_password')]"
-                    }
+                    "authenticationType": "Anonymous"
                 }
             },
             "dependsOn": [
@@ -852,7 +837,7 @@
             ]
         },
         {
-            "name": "[concat(parameters('factoryName'), '/dataflow1')]",
+            "name": "[concat(parameters('factoryName'), '/CovidTracking_Dataset')]",
             "type": "Microsoft.DataFactory/factories/dataflows",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -919,7 +904,7 @@
                             "name": "ReformatHeadingAndColumns"
                         }
                     ],
-                    "script": "parameters{\n\tfilename as string ('covid_tracking'),\n\trunid as string ('runtime_guid')\n}\nsource(output(\n\t\tdate as date,\n\t\tcounty as string,\n\t\tstate as string,\n\t\tfips as integer,\n\t\tcases as short,\n\t\tdeaths as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourceCSV\nsourceCSV derive(Load_Date = currentDate('UTC'),\n\t\tLoad_Time = currentUTC('yyyy-MM-dd'),\n\t\tISO_Country = 'US',\n\t\tDeath_Rate = toInteger(divide(deaths, cases)*100)) ~> Add4columns\nAdd4columns select(mapColumn(\n\t\tLoad_Date,\n\t\tLoad_Time,\n\t\tRecord_Date = date,\n\t\tCounty = county,\n\t\tState = state,\n\t\tFips = fips,\n\t\tCases = cases,\n\t\tDeaths = deaths,\n\t\tISO_Country,\n\t\tDeath_Rate\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> ReformatHeadingAndColumns\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.parquet'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkParquet\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($filename, '.parquet'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkLatestParquet\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.jsonl'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkJsonl\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.csv'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkCSV\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename, '.jsonl'))],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkLatestJsonl\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename, '.csv'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkLatestCSV"
+                    "script": "parameters{\n\tfilename as string ('covid_tracking'),\n\trunid as string ('runtime_guid')\n}\nsource(output(\n\t\tdate as date,\n\t\tcounty as string,\n\t\tstate as string,\n\t\tfips as integer,\n\t\tcases as short,\n\t\tdeaths as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourceCSV\nsourceCSV derive(Load_Date = currentDate('UTC'),\n\t\tLoad_Time = currentUTC('yyyy-MM-dd'),\n\t\tISO_Country = 'US',\n\t\tDeath_Rate = toInteger(divide(deaths, cases)*100)) ~> Add4columns\nAdd4columns select(mapColumn(\n\t\tLoad_Date,\n\t\tLoad_Time,\n\t\tRecord_Date = date,\n\t\tCounty = county,\n\t\tState = state,\n\t\tFips = fips,\n\t\tCases = cases,\n\t\tDeaths = deaths,\n\t\tISO_Country,\n\t\tDeath_Rate\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> ReformatHeadingAndColumns\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.parquet'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkParquet\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($filename, '.parquet'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkLatestParquet\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.jsonl'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkJsonl\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.csv'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkCSV\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename, '.jsonl'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkLatestJsonl\nReformatHeadingAndColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename, '.csv'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkLatestCSV"
                 }
             },
             "dependsOn": [
@@ -1299,7 +1284,7 @@
         {
             "type": "Microsoft.Insights/metricalerts",
             "apiVersion": "2018-03-01",
-            "name": "Alerrt-PipelineSucceeded",
+            "name": "Alert-PipelineSucceeded",
             "location": "global",
             "dependsOn": [
                 "[parameters('factoryName')]",
@@ -1393,7 +1378,7 @@
                                     "values": [
                                         "ToRawPartition",
                                         "ToRawOverwrite",
-                                        "dataflow1",
+                                        "CovidTracking_Dataset",
                                         "JSONLtoJSONLATEST",
                                         "JSONLtoJSON"
                                     ]
@@ -1471,7 +1456,7 @@
                                     "values": [
                                         "ToRawPartition",
                                         "ToRawOverwrite",
-                                        "dataflow1",
+                                        "CovidTracking_Dataset",
                                         "JSONLtoJSONLATEST",
                                         "JSONLtoJSON"
                                     ]
