@@ -44,7 +44,7 @@
                 "description": "Enter Teams Connection Name e.g teams-1"
                 }
         },
-        "Teams_Email": {
+        "Teams_Connection_Email": {
             "defaultValue": "",
             "type": "String",
             "metadata": {
@@ -60,7 +60,7 @@
         }      
     },
     "variables": {
-        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]",
+        "factoryId": "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]",
         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"        
     },
     "resources": [
@@ -956,7 +956,7 @@
             "location": "eastus",
             "kind": "V1",
             "properties": {
-                "displayName": "[parameters('Teams_Email')]",
+                "displayName": "[parameters('Teams_Connection_Email')]",
                 "customParameterValues": {},
                 "api": {
                     "id": "/subscriptions/6df48df0-802d-4891-9f31-7cc1879f3cb4/providers/Microsoft.Web/locations/eastus/managedApis/teams"
@@ -1359,7 +1359,7 @@
                 "criteria": {
                     "allOf": [
                         {
-                            "threshold": 0,
+                            "threshold": 1,
                             "name": "0dba6785-59c7-4e5d-98ba-b244d548eddf",
                             "metricNamespace": "Microsoft.DataFactory/factories",
                             "metricName": "ActivityCancelledRuns",
@@ -1400,8 +1400,8 @@
                                     ]
                                 }
                             ],
-                            "operator": "GreaterThan",
-                            "timeAggregation": "Total",
+                            "operator": "GreaterThanOrEqual",
+                            "timeAggregation": "Average",
                             "criterionType": "StaticThresholdCriterion"
                         }
                     ],
