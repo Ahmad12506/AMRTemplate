@@ -1,4 +1,11 @@
 # AMRTemplate
+<h2>DF Schema Deection </h2>
+<h3>Deploy DF, Storage account, Logic App, Action Groups, Alerts <h3>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/
+https%3A%2F%2Fraw.githubusercontent.com%2FAhmad12506%2FAMRTemplate%2Fmain%2FNY-DF-SchemaChanges.json" target="_blank">
+  <img src="https://aka.ms/deploytoazurebutton"/>
+</a>
+
 <h2>Data Factory </h2>
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAhmad12506%2FAMRTemplate%2Fmain%2FDataFactoryARMtemp.json" target="_blank">
   <img src="https://aka.ms/deploytoazurebutton"/>
