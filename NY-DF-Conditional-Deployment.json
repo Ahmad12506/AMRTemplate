@@ -62,34 +62,35 @@
             "defaultValue": "",
             "type": "String",
             "metadata": {
-                "description": "Enter Logic App name"
+                "description": "Enter the unique SQL server Name"
                 }
         },
         "yourdb": {
             "defaultValue": "",
             "type": "String",
             "metadata": {
-                "description": "Enter Logic App name"
+                "description": "Enter Database Name"
                 }
         },
         "serverlogin": {
             "defaultValue": "",
             "type": "String",
             "metadata": {
-                "description": "Enter Logic App name"
+                "description": "Enter Server Login User Name"
                 }
         },
         "serverpassword": {
             "defaultValue": "",
-            "type": "String",
+            "type": "securestring",
             "metadata": {
-                "description": "Enter Logic App name"
+                "description": "Enter Server Password"
                 }
         }          
     },
     "variables": {
         "factoryId": "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]",
-        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"        
+        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+        "databaseCollation": "SQL_Latin1_General_CP1_CI_AS"
     },
     "resources": [
         {
@@ -127,7 +128,8 @@
             "location": "[parameters('location')]",
             "properties": {
                             "administratorLogin": "[parameters('serverlogin')]",
-                            "administratorLoginPassword": "[parameters('serverpassword')]"
+                            "administratorLoginPassword": "[parameters('serverpassword')]",
+                            "version": "12.0"
             },
             "resources": [
             {
@@ -140,6 +142,9 @@
                             "name": "Basic",
                             "tier": "Basic",
                             "capacity": 5
+                },
+                "properties": {
+                    "collation": "[variables('databaseCollation')]"
                 },
                 "dependsOn": [
                     "[resourceId('Microsoft.Sql/servers', concat(parameters('yourserver')))]"
