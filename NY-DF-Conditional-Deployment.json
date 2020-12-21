@@ -44,13 +44,6 @@
                 "description": "Enter Teams Connection Name e.g teams-1"
                 }
         },
-        "Teams_Connection_Email": {
-            "defaultValue": "",
-            "type": "String",
-            "metadata": {
-                "description": "Enter Email to send the notification"
-                }
-        },
         "Logic_App_Name": {
             "defaultValue": "newlogicapp",
             "type": "String",
@@ -2619,7 +2612,7 @@
             "location": "eastus",
             "kind": "V1",
             "properties": {
-                "displayName": "[parameters('Teams_Connection_Email')]",
+                "displayName": "ahmadasad@emumbapvtgmail.onmicrosoft.com",
                 "customParameterValues": {},
                 "api": {
                     "id": "/subscriptions/6df48df0-802d-4891-9f31-7cc1879f3cb4/providers/Microsoft.Web/locations/eastus/managedApis/teams"
