@@ -1,7 +1,7 @@
 # AMRTemplate
 <h2>DF Conditional Deployment </h2>
 <h5>Deploy DF, Storage account, Logic App, Action Groups, Alerts, Sink SQL (conditional Deployment of pipelines) <h5>
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAhmad12506%2FAMRTemplate%2Fmain%2FNY-DF-Conditional-Deployment" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAhmad12506%2FAMRTemplate%2Fmain%2FNY-DF-Conditional-Deployment.json" target="_blank">
   <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
