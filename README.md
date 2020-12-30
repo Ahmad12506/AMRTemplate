@@ -1,6 +1,6 @@
 # ARMTemplate
 <h2>DF SQL DataType Cahange Detection </h2>
-<h5>Deploy DF, Storage account, Logic App, Action Groups, Schema change detection alerts, SQL DataType table schema change detection, Sink SQL (conditional Deployment of pipelines)  <h5>
+<h5>Deploy DF, Storage account, Logic App, Action Groups, Schema change detection alerts, SQL DataType table schema change detection, Sink SQL (conditional Deployment of pipelines) and action rule to send single email and notification  <h5>
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAhmad12506%2FARMTemplate%2Fmain%2FSQL-DataType-Change-Detection.json" target="_blank">
   <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
