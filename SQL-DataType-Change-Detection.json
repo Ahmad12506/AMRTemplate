@@ -118,7 +118,34 @@
                 "[parameters('storageAccountName')]"
             ]
         },
-
+        {
+            "type": "Microsoft.AlertsManagement/actionRules",
+            "apiVersion": "2019-05-05-preview",
+            "name": "NewSuppressedActionRule",
+            "location": "global",
+            "properties": {
+                "conditions": {
+                    "monitorCondition": {
+                        "operator": "Equals",
+                        "values": [
+                            "Resolved"
+                        ]
+                    }
+                },
+                "status": "Enabled",
+                "type": "Suppression",
+                "scope": {
+                    "scopeType": "Resource",
+                    "values": [
+                        "[variables('factoryId')]"
+                    ]
+                },
+                "suppressionConfig": {
+                    "recurrenceType": "Always"
+                },
+                "description": "This is an suppressed rule to deactivate the email."
+            }
+        },
         {
             "condition":"[equals(parameters('Save_into_SQL'),'Yes')]",
             "type": "Microsoft.Sql/servers",
