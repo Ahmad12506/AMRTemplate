@@ -6,28 +6,28 @@
             "type": "string",
             "defaultValue": "nydatafactory",
             "metadata": {
-                "description": "Enter the worldwide unique name for Data Factory"
+                "description": "The name can contain only letters, numbers and hyphens. The first and last characters must be a letter or number. Spaces are not allowed."
                 }
         },
         "storageAccountName": {
             "type": "string",
             "defaultValue": "storageacc",
             "metadata": {
-            "description": "Enter the unique Name of the Azure storage account that contains the input/output data."
+            "description": "The field can contain only lowercase letters and numbers. Name must be between 3 and 24 characters."
             }
        },
        "location": {
             "type": "string",
             "defaultValue": "eastus",
             "metadata": {
-            "description": "By Default eastus location is allowed"
+            "description": "By Default eastus location is allowed."
             }
         },
         "Action_Group_Name": {
             "defaultValue": "actiongroup",
             "type": "String",
             "metadata": {
-                "description": "Enter Action group name"
+                "description": "Enter Action group name."
                 }
         },
         "Action_Email": {
@@ -48,11 +48,14 @@
             "defaultValue": "newlogicapp",
             "type": "String",
             "metadata": {
-                "description": "Enter Logic App name"
+                "description": "The name can only contain letters, numbers, and '-', '(', ')', '_' or '.'."
                 }
         },
         "Save_into_SQL":{
             "type": "string",
+            "metadata": {
+                "description": "Select 'Yes' to save output data into SQL. Otherwise 'No'."
+            },
             "allowedValues":[
                 "Yes",
                 "No"
@@ -62,28 +65,28 @@
             "defaultValue": "",
             "type": "String",
             "metadata": {
-                "description": "Enter the unique SQL server Name"
+                "description": "Your server name can contain only lowercase letters, numbers, and '-', but can't start or end with '-' or have more than 63 characters."
                 }
         },
         "yourdb": {
             "defaultValue": "",
             "type": "String",
             "metadata": {
-                "description": "Enter Database Name"
+                "description": "Your database name can't end with '.' or ' ', can't contain '<,>,*,%,&,:/,?' or control characters."
                 }
         },
         "serverlogin": {
             "defaultValue": "",
             "type": "String",
             "metadata": {
-                "description": "Enter Server Login User Name"
+                "description": "Your login name must not start with numbers or symbols."
                 }
         },
         "serverpassword": {
             "defaultValue": "",
             "type": "securestring",
             "metadata": {
-                "description": "Enter Server Password"
+                "description": "Your password must be at least 8 characters in length."
                 }
         }          
     },
@@ -143,7 +146,7 @@
                 "suppressionConfig": {
                     "recurrenceType": "Always"
                 },
-                "description": "This is an suppressed rule to deactivate the email."
+                "description": "This is an suppressed rule to deactivate the email."
             }
         },
         {
@@ -2041,7 +2044,7 @@
                             "sink": {
                                 "type": "AzureSqlSink",
                                 "preCopyScript": {
-                                    "value": "If OBJECT_ID('[ch_schema].[last_table]', 'U') is NOT NULL\n\nBEGIN\n\nDROP TABLE [ch_schema].[last_table];\n\nEND",
+                                    "value": "If OBJECT_ID('[ch_schema].[last_table]', 'U') is NOT NULL\n\nBEGIN\n\nDROP TABLE [ch_schema].[last_table];\n\nEND",
                                     "type": "Expression"
                                 },
                                 "tableOption": "autoCreate",
